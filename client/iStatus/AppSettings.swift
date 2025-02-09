@@ -1,0 +1,22 @@
+//
+//  AppSettings.swift
+//  iStatus
+//
+//  Created by Гарик Джан on 09.02.2025.
+//
+
+import AppKit
+
+class AppSettings {
+    var ipAddress: String =
+        UserDefaults.standard.string(forKey: settingsIpFieldName)
+        ?? defaultIpAddress
+    var portString: String =
+        UserDefaults.standard.string(forKey: settingsPortFieldName)
+        ?? defaultPort
+
+    var port: UInt16 {
+        // Преобразуем строку в UInt16
+        return UInt16(portString) ?? 0
+    }
+}
