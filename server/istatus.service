@@ -1,0 +1,14 @@
+[Unit]
+Description=My Custom Service
+After=network.target
+
+[Service]
+ExecStart=<путь_к_исполняемому_файлу>
+Restart=always
+User=<пользователь>
+WorkingDirectory=<рабочая_директория>
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
