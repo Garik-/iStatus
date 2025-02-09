@@ -1,7 +1,37 @@
 import AppKit
 import SwiftUI
+import Foundation
 
 
+// {"temp":"34.6°C","cpu":"1.87%","mem":{"total":3882924,"used":471124,"available":3372412,"usage":"12.13%"}}
+
+//   let packet = try? JSONDecoder().decode(Packet.self, from: jsonData)
+
+// MARK: - Packet
+struct Packet: Codable {
+    let temp, cpu: String
+    let mem: Mem
+}
+
+// MARK: - Mem
+struct Mem: Codable {
+    let total, used, available: Int
+    let usage: String
+}
+
+
+var defaultTemp = "--.-'C"
+var defaultPercent = "--.--%"
+
+class AppData: ObservableObject {
+    @Published var packet: Packet = Packet(
+        temp: defaultTemp, cpu: defaultPercent,
+        mem: Mem(
+            total: 0, used: 0, available: 0,
+            usage: defaultPercent
+        )
+    )
+}
 
 @main
 struct iStatusApp: App {
@@ -13,15 +43,6 @@ struct iStatusApp: App {
         }
     }
 }
-
-
-var defaultTemp = "--.-'C"
-
-class AppData: ObservableObject {
-    @Published var someText: String = "Initial Text"
-}
-
-
 
 class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject, UDPListener {
     private var statusItem: NSStatusItem?
@@ -35,17 +56,26 @@ class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject, UDPListene
             withLength: NSStatusItem.variableLength)
         
         createMenu()
-        
-        self.updateSettings(port: settings.portString)
+        updateSettings(port: settings.portString)
     }
     
     func handleResponse(data: Data) {
-        if let dataString = String(data: data, encoding: .utf8) {
+        let pack = try? JSONDecoder().decode(Packet.self, from: data)
+        
+        statusItem?.button?.title = pack?.temp ?? defaultTemp
+        addData.packet = pack!
+        
+        
+        /*if let dataString = String(data: data, encoding: .utf8) {
             
-            print(dataString)
-            addData.someText = dataString
+            print(dataString) // TODO: sdsdf
+            
+            
+            
+            
+            // addData.someText = dataString
             // statusItem?.button?.title = dataString
-        }
+        }*/
     }
     
     private func createMenu() {
@@ -71,6 +101,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject, UDPListene
         
         udpReceiver = nil
         statusItem?.button?.title = defaultTemp
+        // TODO: addData set default object
         
         udpReceiver = UDPReceiver(port: settings.port)
         udpReceiver?.delegate = self

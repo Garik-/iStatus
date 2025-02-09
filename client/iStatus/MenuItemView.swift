@@ -23,21 +23,49 @@ struct MunuItemView: View {
     @EnvironmentObject var data: AppData
 
     var body: some View {
-        VStack {
+        VStack(alignment: .leading) {
             HStack {
-                Text("test")
+                Text("CPU")
                     .bold()
                 Spacer()
-                Text("test")
+                Text(data.packet.cpu)
                     .opacity(0.75)
-            }
-            Text(data.someText)
+            }.padding(.vertical, 1)
+            
+            HStack {
+                Text("Memory")
+                    .bold()
+                Spacer()
+                Text(data.packet.mem.usage)
+                    .opacity(0.75)
+            }.padding(.vertical, 1)
+            
+            VStack(alignment: .leading) {
+               /* fmt.Printf("Общая память: %d kB\n", memTotal)
+                fmt.Printf("Используемая память: %d kB\n", memUsed)
+                fmt.Printf("Доступная память: %d kB\n", memAvailable)
+                fmt.Printf("Использование памяти: %.2f%%\n", memUsagePercent) */
+                
+                Text("Total memory: \(data.packet.mem.total) kB")
+                    .foregroundColor(.secondary)
+                    .font(.subheadline)
+                    
+                Text("Used memory: \(data.packet.mem.used) kB")
+                    .foregroundColor(.secondary)
+                    .font(.subheadline)
+                
+                Text("Available memory: \(data.packet.mem.available) kB")
+                    .foregroundColor(.secondary)
+                    .font(.subheadline)
+                
+            }.padding(.vertical, 6)
+        
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 4)
         .padding(.top, 4)
 
-        .frame(minWidth: 200)
+        .frame(minWidth: menuWidth)
     }
 }
 

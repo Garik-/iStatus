@@ -8,7 +8,7 @@
 import AppKit
 import SwiftUI
 
-
+let menuWidth = CGFloat(240)
 
 struct MenuButtonStyle: ButtonStyle {
     @State private var isHovered = false
@@ -44,7 +44,7 @@ struct AdvancedSettingsButton: View {
                 .font(Font(NSFont.menuFont(ofSize: NSFont.systemFontSize)))  // Используем системный шрифт меню
         }
         .padding(.horizontal, 5)
-        //.frame(width: 200)
+        .frame(width: menuWidth)
     }
 }
 
@@ -90,8 +90,8 @@ struct SettingsView: View {
             }
             .padding(.top, 10)
         }
-        .padding()
-        .frame(width: 300, height: 120)
+        .padding(14)
+        .frame(width: 300, height: 130)
     }
 }
 
