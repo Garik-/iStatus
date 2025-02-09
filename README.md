@@ -1,7 +1,7 @@
 # iStatus
 Shows the temperature, cpu and memory usage of the Raspberry Pi in the MacOS status bar
 
-![preview](docs/preview.png)
+![preview](docs/preview.jpg)
 
 ## How it works
 The server parses files:
