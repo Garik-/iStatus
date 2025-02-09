@@ -18,7 +18,7 @@ class UDPReceiver {
 
     init(port: UInt16) {
         print("init UDPReceiver on \(port)")
-        
+
         do {
             listener = try NWListener(
                 using: .udp, on: NWEndpoint.Port(rawValue: port)!)

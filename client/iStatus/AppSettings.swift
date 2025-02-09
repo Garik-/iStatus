@@ -7,6 +7,9 @@
 
 import AppKit
 
+let settingsPortFieldName = "port"
+let defaultPort = "9999"
+
 class AppSettings {
     var portString: String =
         UserDefaults.standard.string(forKey: settingsPortFieldName)
