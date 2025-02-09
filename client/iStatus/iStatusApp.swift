@@ -1,9 +1,7 @@
 import AppKit
 import SwiftUI
 
-let settingsIpFieldName = "ipAddress"
 let settingsPortFieldName = "port"
-let defaultIpAddress = "192.168.1.10"
 let defaultPort = "9999"
 
 @main
@@ -46,23 +44,25 @@ struct AdvancedSettingsButton: View {
 
     var body: some View {
         HStack {
-            Button("Open Advanced Settings…") {
+            Button("Open Settings…") {
                 openSettings()
             }.buttonStyle(MenuButtonStyle())
                 .font(Font(NSFont.menuFont(ofSize: NSFont.systemFontSize)))  // Используем системный шрифт меню
         }
         .padding(.horizontal, 5)
+        //.frame(width: 200)
     }
 }
 
 
 struct SettingsView: View {
-    @AppStorage(settingsIpFieldName) private var ipAddress: String = ""
     @AppStorage(settingsPortFieldName) private var port: String = ""
 
     @EnvironmentObject var appDelegate: AppDelegate
 
     @Environment(\.dismiss) var dismiss
+    
+    var buttonWidth: CGFloat = 60
 
     var body: some View {
         VStack(spacing: 10) {
@@ -70,8 +70,6 @@ struct SettingsView: View {
             Form {
                 Section("Connection settings") {
 
-                    TextField("IP Address", text: $ipAddress)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
 
                     TextField("Port", text: $port)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -83,72 +81,87 @@ struct SettingsView: View {
             HStack {
                 Spacer()  // Отталкивает кнопки вправо
 
-                Button("Cancel") {
+                Button(action: {
                     dismiss()
+                }) {
+                    Text("Cancel").frame(width:buttonWidth)
                 }
 
-                Button("OK") {
-                    print("Сохранено: IP = \(ipAddress), Port = \(port)")
-
-                    appDelegate.updateSettings(ipAddress: ipAddress, port: port)
+                Button(action: {
+                    appDelegate.updateSettings(port: port)
                     dismiss()
+                }) {
+                    Text("OK").frame(width:buttonWidth)
                 }
+
                 .keyboardShortcut(.defaultAction)  // Enter = OK
             }
             .padding(.top, 10)
         }
         .padding()
-        .frame(width: 300, height: 200)
+        .frame(width: 300, height: 120)
     }
+}
+
+var defaultTemp = "--.-'C"
+
+class AppData: ObservableObject {
+    @Published var someText: String = "Initial Text"
+    
+    
 }
 
 
 
 class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject, UDPListener {
     private var statusItem: NSStatusItem?
-    var udpReceiver: UDPReceiver?
-
-
-
+    private var udpReceiver: UDPReceiver?
     private var settings = AppSettings()
+    private var addData = AppData()
 
+    
     func applicationDidFinishLaunching(_ notification: Notification) {
-        setupMenuBar()
-        createMenu([])
+        statusItem = NSStatusBar.system.statusItem(
+            withLength: NSStatusItem.variableLength)
         
-        udpReceiver = UDPReceiver(port: 9999)
-        udpReceiver?.delegate = self
+        createMenu()
+        
+        self.updateSettings(port: settings.portString)
     }
     
     func handleResponse(data: Data) {
         if let dataString = String(data: data, encoding: .utf8) {
-            statusItem?.button?.title = dataString
+            
+            print(dataString)
+            addData.someText = dataString
+            // statusItem?.button?.title = dataString
         }
     }
     
-    private func createMenu(_ data: [(String, String)]) {
+    private func createMenu() {
         let menu = NSMenu()
 
-        for (left, right) in data {
-            let menuItem = NSMenuItem()
-            let hostingView = NSHostingView(
-                rootView: MunuItemView(title: left, value: right))
+        
+    let menuItem = NSMenuItem()
+    let hostingView = NSHostingView(
+            rootView: MunuItemView().environmentObject(addData) )
             hostingView.setFrameSize(hostingView.intrinsicContentSize)
 
             menuItem.view = hostingView
 
             menu.addItem(menuItem)
-        }
+        
 
         // Разделитель
         menu.addItem(NSMenuItem.separator())
 
-        let menuItem = NSMenuItem()
-        let hostingView = NSHostingView(rootView: AdvancedSettingsButton())
-        hostingView.setFrameSize(hostingView.intrinsicContentSize)
-        menuItem.view = hostingView
+        
+        let settingsItem = NSMenuItem()
+        let settingsHostingView = NSHostingView(rootView: AdvancedSettingsButton())
+        settingsHostingView.setFrameSize(settingsHostingView.intrinsicContentSize)
+        settingsItem.view = settingsHostingView
 
-        menu.addItem(menuItem)
+        menu.addItem(settingsItem)
 
         menu.addItem(
             NSMenuItem(
@@ -158,40 +171,41 @@ class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject, UDPListene
         statusItem?.menu = nil
         statusItem?.menu = menu
     }
-
-    private func setupMenuBar() {
-        statusItem = NSStatusBar.system.statusItem(
-            withLength: NSStatusItem.variableLength)
-
-        statusItem?.button?.title = "0'C"
-    }
-
    
     @objc func quit() {
         NSApp.terminate(nil)
     }
 
-    func updateSettings(ipAddress: String, port: String) {
-        settings.ipAddress = ipAddress
+    func updateSettings(port: String) {
         settings.portString = port
-        print("updateSettings \(ipAddress) \(port)")
-
-        // startUDPClient()
+        
+        udpReceiver = nil
+        statusItem?.button?.title = defaultTemp
+        
+        udpReceiver = UDPReceiver(port: settings.port)
+        udpReceiver?.delegate = self
     }
 }
 
-@ViewBuilder
-func MunuItemView(title: String, value: String) -> some View {
-    HStack {
-        Text(title)
-            .bold()
-        Spacer()
-        Text(value)  // TODO: можно реактивно менять через ObservableObject
-            .opacity(0.75)
-    }
-    .padding(.horizontal, 14)
-    .padding(.vertical, 4)
-    .padding(.top, 4)
 
-    .frame(minWidth: 200)
+struct MunuItemView: View {
+    @EnvironmentObject var data: AppData
+    
+    var body: some View {
+        VStack {
+            HStack {
+                Text("test")
+                    .bold()
+                Spacer()
+                Text("test")
+                    .opacity(0.75)
+            }
+            Text(data.someText)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 4)
+        .padding(.top, 4)
+        
+        .frame(minWidth: 200)
+    }
 }

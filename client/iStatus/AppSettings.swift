@@ -8,9 +8,6 @@
 import AppKit
 
 class AppSettings {
-    var ipAddress: String =
-        UserDefaults.standard.string(forKey: settingsIpFieldName)
-        ?? defaultIpAddress
     var portString: String =
         UserDefaults.standard.string(forKey: settingsPortFieldName)
         ?? defaultPort
