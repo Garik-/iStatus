@@ -63,19 +63,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject, UDPListene
         let pack = try? JSONDecoder().decode(Packet.self, from: data)
         
         statusItem?.button?.title = pack?.temp ?? defaultTemp
+        statusItem?.button?.toolTip = "Last updated \(Date().formatted())"
+
         addData.packet = pack!
-        
-        
-        /*if let dataString = String(data: data, encoding: .utf8) {
-            
-            print(dataString) // TODO: sdsdf
-            
-            
-            
-            
-            // addData.someText = dataString
-            // statusItem?.button?.title = dataString
-        }*/
     }
     
     private func createMenu() {
