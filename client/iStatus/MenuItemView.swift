@@ -31,7 +31,7 @@ struct MunuItemView: View {
                 Text(data.packet.cpu)
                     .opacity(0.75)
             }.padding(.vertical, 1)
-            
+
             HStack {
                 Text("Memory")
                     .bold()
@@ -39,27 +39,28 @@ struct MunuItemView: View {
                 Text(data.packet.mem.usage)
                     .opacity(0.75)
             }.padding(.vertical, 1)
-            
+
             VStack(alignment: .leading) {
-               /* fmt.Printf("Общая память: %d kB\n", memTotal)
-                fmt.Printf("Используемая память: %d kB\n", memUsed)
-                fmt.Printf("Доступная память: %d kB\n", memAvailable)
-                fmt.Printf("Использование памяти: %.2f%%\n", memUsagePercent) */
-                
-                Text("Total memory: \(data.packet.mem.total) kB")
-                    .foregroundColor(.secondary)
-                    .font(.subheadline)
-                    
-                Text("Used memory: \(data.packet.mem.used) kB")
-                    .foregroundColor(.secondary)
-                    .font(.subheadline)
-                
-                Text("Available memory: \(data.packet.mem.available) kB")
-                    .foregroundColor(.secondary)
-                    .font(.subheadline)
-                
+                Text(
+                    "Total memory: \((data.packet.mem.total * 1000).formatted(.byteCount(style: .memory)))"
+                )
+                .foregroundColor(.secondary)
+                .font(.subheadline)
+
+                Text(
+                    "Used memory: \((data.packet.mem.used * 1000).formatted(.byteCount(style: .memory)))"
+                )
+                .foregroundColor(.secondary)
+                .font(.subheadline)
+
+                Text(
+                    "Available memory: \((data.packet.mem.available * 1000).formatted(.byteCount(style: .memory)))"
+                )
+                .foregroundColor(.secondary)
+                .font(.subheadline)
+
             }.padding(.vertical, 6)
-        
+
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 4)
