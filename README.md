@@ -36,7 +36,7 @@ systemctl start istatus
 check
 ```sh
 systemctl status istatus
-journalctl -u myservice -f
+journalctl -u istatus -f
 ```
 
 ### MacOS Application

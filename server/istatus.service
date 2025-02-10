@@ -1,14 +1,27 @@
 [Unit]
-Description=My Custom Service
-After=network.target
+Description=iStatus UDP Server
+
+After=network.target network-online.target
+Wants=network-online.target
 
 [Service]
-ExecStart=<путь_к_исполняемому_файлу>
-Restart=always
-User=<пользователь>
-WorkingDirectory=<рабочая_директория>
-StandardOutput=journal
-StandardError=journal
+LogNamespace=istatus
+Type=simple
+User=xakep
+ExecStart=/home/xakep/bin/istatus
+
+# restart if it crashes
+Restart=on-failure
+RestartSec=30
+
+CPUSchedulingPolicy=batch
+Nice=0
+
+# Sandboxing
+ProtectSystem=full
+ProtectHome=read-only
+ProtectControlGroups=on
+BindReadOnlyPaths=-/proc/stat -/proc/meminfo -/sys/class/thermal/thermal_zone0/temp
 
 [Install]
 WantedBy=multi-user.target
