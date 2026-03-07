@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	pc, err := net.ListenPacket("udp4", ":9999")
+	pc, err := net.ListenPacket("udp4", ":12345")
 	if err != nil {
 		panic(err)
 	}
