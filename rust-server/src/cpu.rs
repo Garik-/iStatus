@@ -3,7 +3,6 @@ use std::io::{self, BufRead, BufReader};
 
 const CPU_FIELDS: usize = 10;
 const BUF_CAP: usize = 256;
-const PROC_STAT: &str = "/proc/stat";
 
 #[inline(always)]
 fn parse_line(line: &[u8]) -> [u64; CPU_FIELDS] {
@@ -62,17 +61,22 @@ fn get_cpu_times(path: &str, buf: &mut Vec<u8>) -> std::io::Result<[u64; CPU_FIE
 pub struct CPUState {
     times: [u64; CPU_FIELDS],
     buf: Vec<u8>,
+    path: String,
 }
 
 impl CPUState {
-    pub fn new() -> std::io::Result<Self> {
+    pub fn new(path: &str) -> std::io::Result<Self> {
         let mut buf = Vec::with_capacity(BUF_CAP);
-        let times = get_cpu_times(PROC_STAT, &mut buf)?;
-        Ok(Self { times, buf })
+        let times = get_cpu_times(path, &mut buf)?;
+        Ok(Self {
+            times,
+            buf,
+            path: path.to_owned(),
+        })
     }
 
     pub fn usage(&mut self) -> std::io::Result<f64> {
-        let current = get_cpu_times(PROC_STAT, &mut self.buf)?;
+        let current = get_cpu_times(self.path.as_str(), &mut self.buf)?;
         let mut total_delta: u64 = 0;
         let mut idle_delta: u64 = 0;
 

@@ -2,9 +2,9 @@ const REQUIRED_FIELDS_MASK: u8 = 0b1_1111;
 
 #[derive(Debug, Default, PartialEq)]
 pub struct MemInfo {
-    total: u64,
+    pub total: u64,
     free: u64,
-    available: u64,
+    pub available: u64,
     buffers: u64,
     cached: u64,
 }
